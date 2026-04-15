@@ -17,7 +17,17 @@ app.use(express.json());
 
 
 // api/songs (Read all songs)
-app.get("/api/songs/:id", async (req, res) => {
+app.get("/api/songs", async (req, res) => {
+    try {
+      const songs = await Song.find().sort({ createdAt: -1 });
+      res.json(songs);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
+  // GET ONE
+  app.get("/api/songs/:id", async (req, res) => {
     try {
       const song = await Song.findById(req.params.id);
       if (!song) return res.status(404).json({ message: "Song not found" });
@@ -26,7 +36,6 @@ app.get("/api/songs/:id", async (req, res) => {
       res.status(500).json({ message: err.message });
     }
   });
-
 // api/songs (Insert song)
 app.post("/api/songs", async (req, res) => {
     try {
@@ -62,16 +71,5 @@ app.put("/api/songs/:id", async (req, res) => {
     }
   });
 // /api/songs/:id (Delete song)
-app.delete("/api/songs/:id", async (req, res) => {
-    try {
-      const deleted = await Song.findByIdAndDelete(req.params.id);
-  
-      if (!deleted) return res.status(404).json({ message: "Song not found" });
-  
-      res.status(204).end();
-    } catch (err) {
-      res.status(500).json({ message: err.message });
-    }
-  });
 
 app.listen(PORT, () => console.log(`API running on http://localhost:${PORT}`));
